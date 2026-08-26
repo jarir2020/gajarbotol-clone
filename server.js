@@ -172,6 +172,165 @@ app.post('/api/color-converter', (req, res) => {
   }
 });
 
+// API: Hash Generator (MD5, SHA1, SHA256)
+app.post('/api/hash', (req, res) => {
+  try {
+    const { text, algorithm = 'sha256' } = req.body;
+    if (!text) return res.status(400).json({ error: 'Text is required' });
+    
+    let hash;
+    switch (algorithm.toLowerCase()) {
+      case 'md5':
+        hash = CryptoJS.MD5(text).toString();
+        break;
+      case 'sha1':
+        hash = CryptoJS.SHA1(text).toString();
+        break;
+      case 'sha256':
+        hash = CryptoJS.SHA256(text).toString();
+        break;
+      default:
+        return res.status(400).json({ error: 'Invalid algorithm' });
+    }
+    
+    res.json({ success: true, hash, algorithm });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to generate hash' });
+  }
+});
+
+// API: UUID Generator
+app.post('/api/uuid', (req, res) => {
+  try {
+    const { count = 1 } = req.body;
+    const uuids = [];
+    
+    for (let i = 0; i < Math.min(count, 100); i++) {
+      const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+      uuids.push(uuid);
+    }
+    
+    res.json({ success: true, uuids });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to generate UUID' });
+  }
+});
+
+// API: JSON Formatter
+app.post('/api/json-format', (req, res) => {
+  try {
+    const { json, operation = 'format' } = req.body;
+    if (!json) return res.status(400).json({ error: 'JSON is required' });
+    
+    let result;
+    if (operation === 'format') {
+      const parsed = JSON.parse(json);
+      result = JSON.stringify(parsed, null, 2);
+    } else if (operation === 'minify') {
+      const parsed = JSON.parse(json);
+      result = JSON.stringify(parsed);
+    } else {
+      return res.status(400).json({ error: 'Invalid operation' });
+    }
+    
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(400).json({ error: 'Invalid JSON: ' + error.message });
+  }
+});
+
+// API: Unix Timestamp Converter
+app.post('/api/timestamp', (req, res) => {
+  try {
+    const { input, operation } = req.body;
+    if (!input) return res.status(400).json({ error: 'Input is required' });
+    
+    let result;
+    if (operation === 'toUnix') {
+      const date = new Date(input);
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({ error: 'Invalid date format' });
+      }
+      result = Math.floor(date.getTime() / 1000).toString();
+    } else if (operation === 'toDate') {
+      const timestamp = parseInt(input);
+      if (isNaN(timestamp)) {
+        return res.status(400).json({ error: 'Invalid timestamp' });
+      }
+      result = new Date(timestamp * 1000).toISOString();
+    } else {
+      return res.status(400).json({ error: 'Invalid operation' });
+    }
+    
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to convert timestamp' });
+  }
+});
+
+// API: CSS Minifier/Beautifier
+app.post('/api/css-format', (req, res) => {
+  try {
+    const { css, operation = 'beautify' } = req.body;
+    if (!css) return res.status(400).json({ error: 'CSS is required' });
+    
+    let result;
+    if (operation === 'minify') {
+      result = css.replace(/\s+/g, ' ')
+                  .replace(/\s*([{};:,])\s*/g, '$1')
+                  .replace(/\n/g, '')
+                  .trim();
+    } else if (operation === 'beautify') {
+      // Simple beautification
+      result = css.replace(/\{/g, ' {\n  ')
+                  .replace(/\}/g, '\n}\n')
+                  .replace(/;/g, ';\n  ')
+                  .replace(/:/g, ': ')
+                  .replace(/\n\s*\n/g, '\n')
+                  .trim();
+    } else {
+      return res.status(400).json({ error: 'Invalid operation' });
+    }
+    
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to process CSS' });
+  }
+});
+
+// API: HTML Entity Encoder/Decoder
+app.post('/api/html-entity', (req, res) => {
+  try {
+    const { text, operation = 'encode' } = req.body;
+    if (!text) return res.status(400).json({ error: 'Text is required' });
+    
+    let result;
+    if (operation === 'encode') {
+      result = text.replace(/&/g, '&amp;')
+                   .replace(/</g, '&lt;')
+                   .replace(/>/g, '&gt;')
+                   .replace(/"/g, '&quot;')
+                   .replace(/'/g, '&#039;');
+    } else if (operation === 'decode') {
+      result = text.replace(/&amp;/g, '&')
+                   .replace(/&lt;/g, '<')
+                   .replace(/&gt;/g, '>')
+                   .replace(/&quot;/g, '"')
+                   .replace(/&#039;/g, "'");
+    } else {
+      return res.status(400).json({ error: 'Invalid operation' });
+    }
+    
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to process HTML entities' });
+  }
+});
+
 // Serve main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

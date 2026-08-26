@@ -326,6 +326,42 @@
                 <h3>Unit Converter</h3>
                 <p>Convert between different units of measurement.</p>
             </div>
+
+            <div class="tool-card" onclick="openTool('hash-generator')">
+                <div class="tool-icon">🔒</div>
+                <h3>Hash Generator</h3>
+                <p>Generate MD5, SHA1, and SHA256 hashes for text.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('uuid-generator')">
+                <div class="tool-icon">🆔</div>
+                <h3>UUID Generator</h3>
+                <p>Generate unique UUIDs/GUIDs for your projects.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('json-formatter')">
+                <div class="tool-icon">📋</div>
+                <h3>JSON Formatter</h3>
+                <p>Format, validate, and minify JSON data.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('timestamp-converter')">
+                <div class="tool-icon">⏰</div>
+                <h3>Unix Timestamp Converter</h3>
+                <p>Convert between Unix timestamps and human-readable dates.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('css-formatter')">
+                <div class="tool-icon">🎨</div>
+                <h3>CSS Minifier/Beautifier</h3>
+                <p>Minify or beautify your CSS code.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('html-entity')">
+                <div class="tool-icon">🌐</div>
+                <h3>HTML Entity Encoder</h3>
+                <p>Encode and decode HTML entities.</p>
+            </div>
         </div>
     </div>
 
@@ -548,6 +584,108 @@
                     </div>
                     <button class="btn" onclick="convertUnits()">Convert</button>
                     <div id="unitResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'hash-generator': {
+                title: 'Hash Generator',
+                render: () => `
+                    <div class="form-group">
+                        <label>Enter Text</label>
+                        <textarea id="hashText" placeholder="Enter text to generate hash"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Algorithm</label>
+                        <select id="hashAlgorithm">
+                            <option value="md5">MD5</option>
+                            <option value="sha1">SHA1</option>
+                            <option value="sha256">SHA256</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="generateHash()">Generate Hash</button>
+                    <div id="hashResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'uuid-generator': {
+                title: 'UUID Generator',
+                render: () => `
+                    <div class="form-group">
+                        <label>Number of UUIDs</label>
+                        <input type="number" id="uuidCount" value="1" min="1" max="100">
+                    </div>
+                    <button class="btn" onclick="generateUUID()">Generate UUID</button>
+                    <div id="uuidResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'json-formatter': {
+                title: 'JSON Formatter',
+                render: () => `
+                    <div class="form-group">
+                        <label>Enter JSON</label>
+                        <textarea id="jsonInput" placeholder="Paste your JSON here" style="min-height:150px;font-family:monospace;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Operation</label>
+                        <select id="jsonOperation">
+                            <option value="format">Format/Beautify</option>
+                            <option value="minify">Minify</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="formatJSON()">Process JSON</button>
+                    <div id="jsonResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'timestamp-converter': {
+                title: 'Unix Timestamp Converter',
+                render: () => `
+                    <div class="form-group">
+                        <label>Operation</label>
+                        <select id="timestampOperation">
+                            <option value="toUnix">Date to Unix Timestamp</option>
+                            <option value="toDate">Unix Timestamp to Date</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Input</label>
+                        <input type="text" id="timestampInput" placeholder="Enter date or timestamp">
+                    </div>
+                    <button class="btn" onclick="convertTimestamp()">Convert</button>
+                    <div id="timestampResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'css-formatter': {
+                title: 'CSS Minifier/Beautifier',
+                render: () => `
+                    <div class="form-group">
+                        <label>Enter CSS</label>
+                        <textarea id="cssInput" placeholder="Paste your CSS here" style="min-height:150px;font-family:monospace;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Operation</label>
+                        <select id="cssOperation">
+                            <option value="beautify">Beautify</option>
+                            <option value="minify">Minify</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="formatCSS()">Process CSS</button>
+                    <div id="cssResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'html-entity': {
+                title: 'HTML Entity Encoder/Decoder',
+                render: () => `
+                    <div class="form-group">
+                        <label>Enter Text</label>
+                        <textarea id="htmlEntityText" placeholder="Enter text to encode or decode"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Operation</label>
+                        <select id="htmlEntityOperation">
+                            <option value="encode">Encode to HTML Entities</option>
+                            <option value="decode">Decode from HTML Entities</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="processHTMLEntity()">Process</button>
+                    <div id="htmlEntityResult" class="result-box" style="display:none;"></div>
                 `
             }
         };
@@ -982,6 +1120,212 @@
             const factor = factors[category];
             const inMeters = value * factor[from];
             return inMeters / factor[to];
+        }
+
+        // Hash Generator
+        async function generateHash() {
+            const text = document.getElementById('hashText').value;
+            const algorithm = document.getElementById('hashAlgorithm').value;
+            const resultDiv = document.getElementById('hashResult');
+
+            if (!text) {
+                alert('Please enter text');
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box loading';
+            resultDiv.innerHTML = '<div class="loading">Generating hash...</div>';
+
+            try {
+                const response = await fetch('/api/hash', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, algorithm })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.className = 'result-box';
+                    resultDiv.innerHTML = `<h4>${algorithm.toUpperCase()} Hash:</h4><pre>${data.hash}</pre>`;
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><pre>${error.message}</pre>`;
+            }
+        }
+
+        // UUID Generator
+        async function generateUUID() {
+            const count = parseInt(document.getElementById('uuidCount').value);
+            const resultDiv = document.getElementById('uuidResult');
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box loading';
+            resultDiv.innerHTML = '<div class="loading">Generating UUIDs...</div>';
+
+            try {
+                const response = await fetch('/api/uuid', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.className = 'result-box';
+                    resultDiv.innerHTML = `<h4>Generated UUIDs:</h4><pre>${data.uuids.join('\n')}</pre>`;
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><pre>${error.message}</pre>`;
+            }
+        }
+
+        // JSON Formatter
+        async function formatJSON() {
+            const json = document.getElementById('jsonInput').value;
+            const operation = document.getElementById('jsonOperation').value;
+            const resultDiv = document.getElementById('jsonResult');
+
+            if (!json) {
+                alert('Please enter JSON');
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box loading';
+            resultDiv.innerHTML = '<div class="loading">Processing JSON...</div>';
+
+            try {
+                const response = await fetch('/api/json-format', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ json, operation })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.className = 'result-box';
+                    resultDiv.innerHTML = `<h4>Result:</h4><pre style="font-family:monospace;font-size:0.9rem;">${data.result}</pre>`;
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><pre>${error.message}</pre>`;
+            }
+        }
+
+        // Timestamp Converter
+        async function convertTimestamp() {
+            const input = document.getElementById('timestampInput').value;
+            const operation = document.getElementById('timestampOperation').value;
+            const resultDiv = document.getElementById('timestampResult');
+
+            if (!input) {
+                alert('Please enter a date or timestamp');
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box loading';
+            resultDiv.innerHTML = '<div class="loading">Converting...</div>';
+
+            try {
+                const response = await fetch('/api/timestamp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input, operation })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.className = 'result-box';
+                    const label = operation === 'toUnix' ? 'Unix Timestamp:' : 'Date:';
+                    resultDiv.innerHTML = `<h4>${label}</h4><pre>${data.result}</pre>`;
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><pre>${error.message}</pre>`;
+            }
+        }
+
+        // CSS Formatter
+        async function formatCSS() {
+            const css = document.getElementById('cssInput').value;
+            const operation = document.getElementById('cssOperation').value;
+            const resultDiv = document.getElementById('cssResult');
+
+            if (!css) {
+                alert('Please enter CSS');
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box loading';
+            resultDiv.innerHTML = '<div class="loading">Processing CSS...</div>';
+
+            try {
+                const response = await fetch('/api/css-format', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ css, operation })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.className = 'result-box';
+                    resultDiv.innerHTML = `<h4>Result:</h4><pre style="font-family:monospace;font-size:0.9rem;">${data.result}</pre>`;
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><pre>${error.message}</pre>`;
+            }
+        }
+
+        // HTML Entity Processor
+        async function processHTMLEntity() {
+            const text = document.getElementById('htmlEntityText').value;
+            const operation = document.getElementById('htmlEntityOperation').value;
+            const resultDiv = document.getElementById('htmlEntityResult');
+
+            if (!text) {
+                alert('Please enter text');
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box loading';
+            resultDiv.innerHTML = '<div class="loading">Processing...</div>';
+
+            try {
+                const response = await fetch('/api/html-entity', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, operation })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.className = 'result-box';
+                    const label = operation === 'encode' ? 'Encoded:' : 'Decoded:';
+                    resultDiv.innerHTML = `<h4>${label}</h4><pre>${data.result}</pre>`;
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><pre>${error.message}</pre>`;
+            }
         }
     </script>
 </body>
