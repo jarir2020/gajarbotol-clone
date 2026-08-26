@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GajarBotol - Free Online Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .tool-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .tool-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .tool-card p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #e74c3c;
+        }
+
+        .tool-interface {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-box h4 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .result-box pre {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .result-box img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .error {
+            background: #fee;
+            border-left-color: #e74c3c;
+            color: #c0392b;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🥕 GajarBotol</h1>
+            <p>Free Online Tools for Everyone</p>
+        </header>
+
+        <div class="tools-grid">
+            <div class="tool-card" onclick="openTool('qr-code')">
+                <div class="tool-icon">📱</div>
+                <h3>QR Code Generator</h3>
+                <p>Generate QR codes for URLs, text, contact info, and more instantly.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('password-generator')">
+                <div class="tool-icon">🔐</div>
+                <h3>Password Generator</h3>
+                <p>Create strong, secure passwords with customizable options.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('url-shortener')">
+                <div class="tool-icon">🔗</div>
+                <h3>URL Shortener</h3>
+                <p>Shorten long URLs into compact, shareable links.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('text-converter')">
+                <div class="tool-icon">📝</div>
+                <h3>Text Converter</h3>
+                <p>Convert text to uppercase, lowercase, title case, reverse, and count words/characters.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('base64')">
+                <div class="tool-icon">🔄</div>
+                <h3>Base64 Encoder/Decoder</h3>
+                <p>Encode and decode text using Base64 encoding.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('color-converter')">
+                <div class="tool-icon">🎨</div>
+                <h3>Color Converter</h3>
+                <p>Convert colors between HEX, RGB, and HSL formats.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('word-counter')">
+                <div class="tool-icon">📊</div>
+                <h3>Word Counter</h3>
+                <p>Count words, characters, sentences, and paragraphs in your text.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('lorem-ipsum')">
+                <div class="tool-icon">📄</div>
+                <h3>Lorem Ipsum Generator</h3>
+                <p>Generate placeholder text for your designs and mockups.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('case-converter')">
+                <div class="tool-icon">🔤</div>
+                <h3>Case Converter</h3>
+                <p>Quickly convert text between different case formats.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('random-number')">
+                <div class="tool-icon">🎲</div>
+                <h3>Random Number Generator</h3>
+                <p>Generate random numbers within a specified range.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('stopwatch')">
+                <div class="tool-icon">⏱️</div>
+                <h3>Online Stopwatch</h3>
+                <p>Precision stopwatch with lap functionality.</p>
+            </div>
+
+            <div class="tool-card" onclick="openTool('unit-converter')">
+                <div class="tool-icon">📏</div>
+                <h3>Unit Converter</h3>
+                <p>Convert between different units of measurement.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="toolModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Tool Name</h2>
+            <div class="tool-interface" id="toolInterface">
+                <!-- Tool interface will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tools = {
+            'qr-code': {
+                title: 'QR Code Generator',
+                render: () => `
+                    <div class="form-group">
+                        <label>Text or URL</label>
+                        <textarea id="qrText" placeholder="Enter text or URL to generate QR code"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Size (pixels)</label>
+                        <input type="number" id="qrSize" value="200" min="100" max="500">
+                    </div>
+                    <button class="btn" onclick="generateQRCode()">Generate QR Code</button>
+                    <div id="qrResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'password-generator': {
+                title: 'Password Generator',
+                render: () => `
+                    <div class="form-group">
+                        <label>Password Length</label>
+                        <input type="number" id="passLength" value="12" min="4" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label>Options</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="includeUppercase" checked> Uppercase (A-Z)</label>
+                            <label><input type="checkbox" id="includeNumbers" checked> Numbers (0-9)</label>
+                            <label><input type="checkbox" id="includeSymbols" checked> Symbols (!@#$)</label>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="generatePassword()">Generate Password</button>
+                    <div id="passResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'url-shortener': {
+                title: 'URL Shortener',
+                render: () => `
+                    <div class="form-group">
+                        <label>Long URL</label>
+                        <input type="url" id="longUrl" placeholder="https://example.com/very-long-url">
+                    </div>
+                    <button class="btn" onclick="shortenUrl()">Shorten URL</button>
+                    <div id="urlResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'text-converter': {
+                title: 'Text Converter',
+                render: () => `
+                    <div class="form-group">
+                        <label>Enter Text</label>
+                        <textarea id="textContent" placeholder="Enter your text here"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Operation</label>
+                        <select id="textOperation">
+                            <option value="uppercase">To UPPERCASE</option>
+                            <option value="lowercase">To lowercase</option>
+                            <option value="titlecase">To Title Case</option>
+                            <option value="reverse">Reverse Text</option>
+                            <option value="wordcount">Count Words</option>
+                            <option value="charcount">Count Characters</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="convertText()">Convert</button>
+                    <div id="textResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'base64': {
+                title: 'Base64 Encoder/Decoder',
+                render: () => `
+                    <div class="form-group">
+                        <label>Enter Text</label>
+                        <textarea id="base64Text" placeholder="Enter text to encode or decode"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Operation</label>
+                        <select id="base64Operation">
+                            <option value="encode">Encode to Base64</option>
+                            <option value="decode">Decode from Base64</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="processBase64()">Process</button>
+                    <div id="base64Result" class="result-box" style="display:none;"></div>
+                `
+            },
+            'color-converter': {
+                title: 'Color Converter',
+                render: () => `
+                    <div class="form-group">
+                        <label>Color Value</label>
+                        <input type="text" id="colorValue" placeholder="#FF5733 or rgb(255, 87, 51)">
+                    </div>
+                    <div class="form-group">
+                        <label>From Format</label>
+                        <select id="colorFrom">
+                            <option value="hex">HEX</option>
+                            <option value="rgb">RGB</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>To Format</label>
+                        <select id="colorTo">
+                            <option value="hex">HEX</option>
+                            <option value="rgb">RGB</option>
+                            <option value="hsl">HSL</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="convertColor()">Convert</button>
+                    <div id="colorResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'word-counter': {
+                title: 'Word Counter',
+                render: () => `
+                    <div class="form-group">
+                        <label>Enter Text</label>
+                        <textarea id="wordCounterText" placeholder="Paste your text here" oninput="countWords()"></textarea>
+                    </div>
+                    <div id="wordCountResult" class="result-box"></div>
+                `
+            },
+            'lorem-ipsum': {
+                title: 'Lorem Ipsum Generator',
+                render: () => `
+                    <div class="form-group">
+                        <label>Number of Paragraphs</label>
+                        <input type="number" id="loremParagraphs" value="3" min="1" max="20">
+                    </div>
+                    <button class="btn" onclick="generateLorem()">Generate</button>
+                    <div id="loremResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'case-converter': {
+                title: 'Case Converter',
+                render: () => `
+                    <div class="form-group">
+                        <label>Enter Text</label>
+                        <textarea id="caseText" placeholder="Enter your text"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Convert To</label>
+                        <select id="caseType">
+                            <option value="upper">UPPERCASE</option>
+                            <option value="lower">lowercase</option>
+                            <option value="title">Title Case</option>
+                            <option value="sentence">Sentence case</option>
+                            <option value="alternating">aLtErNaTiNg CaSe</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="convertCase()">Convert</button>
+                    <div id="caseResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'random-number': {
+                title: 'Random Number Generator',
+                render: () => `
+                    <div class="form-group">
+                        <label>Minimum Value</label>
+                        <input type="number" id="randomMin" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Maximum Value</label>
+                        <input type="number" id="randomMax" value="100">
+                    </div>
+                    <button class="btn" onclick="generateRandom()">Generate</button>
+                    <div id="randomResult" class="result-box" style="display:none;"></div>
+                `
+            },
+            'stopwatch': {
+                title: 'Online Stopwatch',
+                render: () => `
+                    <div style="text-align:center;padding:20px;">
+                        <div id="stopwatchDisplay" style="font-size:3rem;font-family:monospace;margin-bottom:20px;">00:00:00</div>
+                        <button class="btn" onclick="startStopwatch()" style="width:auto;display:inline-block;margin:5px;">Start</button>
+                        <button class="btn" onclick="stopStopwatch()" style="width:auto;display:inline-block;margin:5px;">Stop</button>
+                        <button class="btn" onclick="resetStopwatch()" style="width:auto;display:inline-block;margin:5px;">Reset</button>
+                        <button class="btn" onclick="lapStopwatch()" style="width:auto;display:inline-block;margin:5px;">Lap</button>
+                        <div id="lapTimes" style="margin-top:20px;text-align:left;"></div>
+                    </div>
+                `
+            },
+            'unit-converter': {
+                title: 'Unit Converter',
+                render: () => `
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="unitCategory" onchange="updateUnitOptions()">
+                            <option value="length">Length</option>
+                            <option value="weight">Weight</option>
+                            <option value="temperature">Temperature</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Value</label>
+                        <input type="number" id="unitValue" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>From Unit</label>
+                        <select id="unitFrom"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>To Unit</label>
+                        <select id="unitTo"></select>
+                    </div>
+                    <button class="btn" onclick="convertUnits()">Convert</button>
+                    <div id="unitResult" class="result-box" style="display:none;"></div>
+                `
+            }
+        };
+
+        let currentTool = null;
+        let stopwatchInterval = null;
+        let stopwatchSeconds = 0;
+        let isStopwatchRunning = false;
+
+        function openTool(toolId) {
+            currentTool = toolId;
+            const tool = tools[toolId];
+            document.getElementById('modalTitle').textContent = tool.title;
+            document.getElementById('toolInterface').innerHTML = tool.render();
+            document.getElementById('toolModal').classList.add('active');
+
+            if (toolId === 'unit-converter') {
+                updateUnitOptions();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('toolModal').classList.remove('active');
+            stopStopwatch();
+            currentTool = null;
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('toolModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // QR Code Generator
+        async function generateQRCode() {
+            const text = document.getElementById('qrText').value;
+            const size = document.getElementById('qrSize').value;
+            const resultDiv = document.getElementById('qrResult');
+
+            if (!text) {
+                alert('Please enter text or URL');
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box loading';
+            resultDiv.innerHTML = '<div class="loading">Generating QR Code...</div>';
+
+            try {
+                const response = await fetch('/api/qr-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, size })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.className = 'result-box';
+                    resultDiv.innerHTML = `<h4>Your QR Code:</h4><img src="${data.qrCode}" alt="QR Code"><br><small>Right-click to save</small>`;
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><p>${error.message}</p>`;
+            }
+        }
+
+        // Password Generator
+        async function generatePassword() {
+            const length = parseInt(document.getElementById('passLength').value);
+            const includeUppercase = document.getElementById('includeUppercase').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+            const resultDiv = document.getElementById('passResult');
+
+            try {
+                const response = await fetch('/api/password-generator', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ length, includeUppercase, includeNumbers, includeSymbols })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.className = 'result-box';
+                    resultDiv.innerHTML = `<h4>Generated Password:</h4><pre>${data.password}</pre><button class="btn" onclick="navigator.clipboard.writeText('${data.password}');alert('Copied!');" style="margin-top:10px;">Copy to Clipboard</button>`;
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><p>${error.message}</p>`;
+            }
+        }
+
+        // URL Shortener
+        async function shortenUrl() {
+            const url = document.getElementById('longUrl').value;
+            const resultDiv = document.getElementById('urlResult');
+
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/url-shortener', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.className = 'result-box';
+                    resultDiv.innerHTML = `<h4>Shortened URL:</h4><pre><a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a></pre><p>Original: ${data.originalUrl}</p>`;
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><p>${error.message}</p>`;
+            }
+        }
+
+        // Text Converter
+        async function convertText() {
+            const text = document.getElementById('textContent').value;
+            const operation = document.getElementById('textOperation').value;
+            const resultDiv = document.getElementById('textResult');
+
+            if (!text) {
+                alert('Please enter text');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/text-converter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, operation })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.className = 'result-box';
+                    resultDiv.innerHTML = `<h4>Result:</h4><pre>${data.result}</pre>`;
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><p>${error.message}</p>`;
+            }
+        }
+
+        // Base64
+        async function processBase64() {
+            const text = document.getElementById('base64Text').value;
+            const operation = document.getElementById('base64Operation').value;
+            const resultDiv = document.getElementById('base64Result');
+
+            if (!text) {
+                alert('Please enter text');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/base64', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, operation })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.className = 'result-box';
+                    resultDiv.innerHTML = `<h4>Result:</h4><pre>${data.result}</pre>`;
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><p>${error.message}</p>`;
+            }
+        }
+
+        // Color Converter
+        async function convertColor() {
+            const color = document.getElementById('colorValue').value;
+            const fromFormat = document.getElementById('colorFrom').value;
+            const toFormat = document.getElementById('colorTo').value;
+            const resultDiv = document.getElementById('colorResult');
+
+            if (!color) {
+                alert('Please enter a color value');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/color-converter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ color, fromFormat, toFormat })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.className = 'result-box';
+                    resultDiv.innerHTML = `<h4>Converted Color:</h4><pre>${data.result}</pre><div style="width:50px;height:50px;background:${data.result};margin-top:10px;border-radius:5px;"></div>`;
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `<h4>Error:</h4><p>${error.message}</p>`;
+            }
+        }
+
+        // Word Counter
+        function countWords() {
+            const text = document.getElementById('wordCounterText').value;
+            const resultDiv = document.getElementById('wordCountResult');
+
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            const chars = text.length;
+            const charsNoSpace = text.replace(/\s/g, '').length;
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+            const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box';
+            resultDiv.innerHTML = `
+                <h4>Statistics:</h4>
+                <p><strong>Words:</strong> ${words}</p>
+                <p><strong>Characters:</strong> ${chars}</p>
+                <p><strong>Characters (no spaces):</strong> ${charsNoSpace}</p>
+                <p><strong>Sentences:</strong> ${sentences}</p>
+                <p><strong>Paragraphs:</strong> ${paragraphs}</p>
+            `;
+        }
+
+        // Lorem Ipsum
+        function generateLorem() {
+            const paragraphs = parseInt(document.getElementById('loremParagraphs').value);
+            const resultDiv = document.getElementById('loremResult');
+
+            const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+            let result = '';
+            for (let i = 0; i < paragraphs; i++) {
+                result += loremText + '\n\n';
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box';
+            resultDiv.innerHTML = `<h4>Lorem Ipsum Text:</h4><pre>${result}</pre>`;
+        }
+
+        // Case Converter
+        function convertCase() {
+            const text = document.getElementById('caseText').value;
+            const caseType = document.getElementById('caseType').value;
+            const resultDiv = document.getElementById('caseResult');
+
+            if (!text) {
+                alert('Please enter text');
+                return;
+            }
+
+            let result = '';
+            switch (caseType) {
+                case 'upper':
+                    result = text.toUpperCase();
+                    break;
+                case 'lower':
+                    result = text.toLowerCase();
+                    break;
+                case 'title':
+                    result = text.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+                    break;
+                case 'sentence':
+                    result = text.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g, c => c.toUpperCase());
+                    break;
+                case 'alternating':
+                    result = text.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join('');
+                    break;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box';
+            resultDiv.innerHTML = `<h4>Result:</h4><pre>${result}</pre>`;
+        }
+
+        // Random Number Generator
+        function generateRandom() {
+            const min = parseInt(document.getElementById('randomMin').value);
+            const max = parseInt(document.getElementById('randomMax').value);
+            const resultDiv = document.getElementById('randomResult');
+
+            if (min >= max) {
+                alert('Minimum must be less than maximum');
+                return;
+            }
+
+            const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box';
+            resultDiv.innerHTML = `<h4>Random Number:</h4><pre style="font-size:2rem;text-align:center;">${randomNum}</pre>`;
+        }
+
+        // Stopwatch
+        function startStopwatch() {
+            if (!isStopwatchRunning) {
+                isStopwatchRunning = true;
+                stopwatchInterval = setInterval(() => {
+                    stopwatchSeconds++;
+                    updateStopwatchDisplay();
+                }, 1000);
+            }
+        }
+
+        function stopStopwatch() {
+            if (stopwatchInterval) {
+                clearInterval(stopwatchInterval);
+                stopwatchInterval = null;
+                isStopwatchRunning = false;
+            }
+        }
+
+        function resetStopwatch() {
+            stopStopwatch();
+            stopwatchSeconds = 0;
+            updateStopwatchDisplay();
+            document.getElementById('lapTimes').innerHTML = '';
+        }
+
+        function lapStopwatch() {
+            if (isStopwatchRunning) {
+                const lapTime = formatTime(stopwatchSeconds);
+                const lapDiv = document.createElement('div');
+                lapDiv.textContent = `Lap: ${lapTime}`;
+                document.getElementById('lapTimes').appendChild(lapDiv);
+            }
+        }
+
+        function updateStopwatchDisplay() {
+            document.getElementById('stopwatchDisplay').textContent = formatTime(stopwatchSeconds);
+        }
+
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Unit Converter
+        const unitOptions = {
+            length: ['meter', 'kilometer', 'centimeter', 'millimeter', 'mile', 'yard', 'foot', 'inch'],
+            weight: ['kilogram', 'gram', 'milligram', 'pound', 'ounce', 'ton'],
+            temperature: ['celsius', 'fahrenheit', 'kelvin']
+        };
+
+        function updateUnitOptions() {
+            const category = document.getElementById('unitCategory').value;
+            const fromSelect = document.getElementById('unitFrom');
+            const toSelect = document.getElementById('unitTo');
+
+            fromSelect.innerHTML = '';
+            toSelect.innerHTML = '';
+
+            unitOptions[category].forEach(unit => {
+                fromSelect.innerHTML += `<option value="${unit}">${unit}</option>`;
+                toSelect.innerHTML += `<option value="${unit}">${unit}</option>`;
+            });
+        }
+
+        function convertUnits() {
+            const category = document.getElementById('unitCategory').value;
+            const value = parseFloat(document.getElementById('unitValue').value);
+            const fromUnit = document.getElementById('unitFrom').value;
+            const toUnit = document.getElementById('unitTo').value;
+            const resultDiv = document.getElementById('unitResult');
+
+            if (isNaN(value)) {
+                alert('Please enter a valid number');
+                return;
+            }
+
+            let result = 0;
+
+            if (category === 'temperature') {
+                result = convertTemperature(value, fromUnit, toUnit);
+            } else {
+                result = convertSimple(value, fromUnit, toUnit, category);
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box';
+            resultDiv.innerHTML = `<h4>Result:</h4><pre>${value} ${fromUnit} = ${result.toFixed(6)} ${toUnit}</pre>`;
+        }
+
+        function convertTemperature(value, from, to) {
+            if (from === to) return value;
+
+            let celsius;
+            if (from === 'celsius') celsius = value;
+            else if (from === 'fahrenheit') celsius = (value - 32) * 5/9;
+            else if (from === 'kelvin') celsius = value - 273.15;
+
+            if (to === 'celsius') return celsius;
+            else if (to === 'fahrenheit') return celsius * 9/5 + 32;
+            else if (to === 'kelvin') return celsius + 273.15;
+        }
+
+        function convertSimple(value, from, to, category) {
+            const factors = {
+                length: {
+                    meter: 1, kilometer: 1000, centimeter: 0.01, millimeter: 0.001,
+                    mile: 1609.34, yard: 0.9144, foot: 0.3048, inch: 0.0254
+                },
+                weight: {
+                    kilogram: 1, gram: 0.001, milligram: 0.000001,
+                    pound: 0.453592, ounce: 0.0283495, ton: 1000
+                }
+            };
+
+            const factor = factors[category];
+            const inMeters = value * factor[from];
+            return inMeters / factor[to];
+        }
+    </script>
+</body>
+</html>
